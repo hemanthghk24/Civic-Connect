@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect | Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);
+overflow:hidden;
+position:relative;
+}
+
+/* Background Circles */
+
+body::before{
+content:"";
+position:absolute;
+width:400px;
+height:400px;
+background:#6366f1;
+border-radius:50%;
+top:-120px;
+left:-120px;
+filter:blur(80px);
+opacity:.5;
+}
+
+body::after{
+content:"";
+position:absolute;
+width:320px;
+height:320px;
+background:#3b82f6;
+border-radius:50%;
+bottom:-80px;
+right:-80px;
+filter:blur(80px);
+opacity:.5;
+}
+
+/* Login Box */
+
+.container{
+position:relative;
+width:900px;
+display:flex;
+background:rgba(255,255,255,.1);
+backdrop-filter:blur(18px);
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 15px 40px rgba(0,0,0,.4);
+border:1px solid rgba(255,255,255,.1);
+z-index:1;
+}
+
+/* Left */
+
+.left{
+width:45%;
+padding:50px;
+color:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+background:rgba(255,255,255,.05);
+}
+
+.left i{
+font-size:70px;
+margin-bottom:20px;
+color:#93c5fd;
+}
+
+.left h1{
+font-size:34px;
+margin-bottom:15px;
+}
+
+.left p{
+line-height:1.8;
+font-size:15px;
+}
+
+/* Right */
+
+.right{
+width:55%;
+background:white;
+padding:45px;
+}
+
+.right h2{
+text-align:center;
+margin-bottom:30px;
+color:#1e40af;
+}
+
+/* Inputs */
+
+.input-box{
+position:relative;
+margin-bottom:22px;
+}
+
+.input-box i{
+position:absolute;
+top:16px;
+left:15px;
+color:#3b82f6;
+}
+
+.input-box input{
+width:100%;
+padding:14px 14px 14px 45px;
+border:1px solid #ccc;
+border-radius:8px;
+outline:none;
+font-size:15px;
+transition:.3s;
+}
+
+.input-box input:focus{
+border-color:#3b82f6;
+box-shadow:0 0 10px rgba(59,130,246,.2);
+}
+
+/* Options */
+
+.options{
+display:flex;
+justify-content:space-between;
+font-size:14px;
+margin-bottom:25px;
+}
+
+.options a{
+text-decoration:none;
+color:#2563eb;
+font-weight:500;
+}
+
+/* Button */
+
+button{
+width:100%;
+padding:14px;
+background:linear-gradient(135deg,#3b82f6,#2563eb);
+border:none;
+border-radius:8px;
+color:white;
+font-size:16px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:linear-gradient(135deg,#60a5fa,#3b82f6);
+}
+
+/* Bottom */
+
+.bottom{
+text-align:center;
+margin-top:25px;
+font-size:15px;
+}
+
+.bottom a{
+color:#2563eb;
+font-weight:600;
+text-decoration:none;
+}
+
+.error-msg{
+color:#dc2626;
+font-size:14px;
+margin-top:12px;
+text-align:center;
+display:none;
+}
+
+/* Responsive */
+
+@media(max-width:850px){
+
+.container{
+width:95%;
+flex-direction:column;
+}
+
+.left{
+display:none;
+}
+
+.right{
+width:100%;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="left">
+
+<i class="fas fa-city"></i>
+
+<h1>Welcome Back!</h1>
+
+<p>
+Login to CivicConnect and continue reporting public issues,
+tracking complaint status, and helping make your city cleaner,
+safer, and smarter.
+</p>
+
+</div>
+
+<div class="right">
+
+<h2>Citizen Login</h2>
+
+<form id="loginForm">
+
+<div class="input-box">
+<i class="fas fa-envelope"></i>
+<input type="email" id="email" placeholder="Email Address">
+</div>
+
+<div class="input-box">
+<i class="fas fa-lock"></i>
+<input type="password" id="password" placeholder="Password">
+</div>
+
+<div class="options">
+
+<label>
+<input type="checkbox">
+ Remember Me
+</label>
+
+<a href="register.html">Forgot Password?</a>
+
+</div>
+
+<button type="submit">Login</button>
+<p class="error-msg" id="loginError"></p>
+
+<div class="bottom">
+
+Don't have an account?
+
+<a href="register.html">Register</a>
+<br><br>
+<a href="index.html">Back to Home</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script src="api.js"></script>
+<script>
+const loginForm=document.getElementById('loginForm');
+const emailInput=document.getElementById('email');
+const passwordInput=document.getElementById('password');
+const loginError=document.getElementById('loginError');
+
+loginForm.addEventListener('submit',async function(e){
+e.preventDefault();
+
+const email=emailInput.value.trim();
+const password=passwordInput.value.trim();
+const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if(!email || !password){
+loginError.textContent='Please enter both email and password.';
+loginError.style.display='block';
+return;
+}
+
+if(!emailPattern.test(email)){
+loginError.textContent='Please enter a valid email address.';
+loginError.style.display='block';
+return;
+}
+
+if(password.length<6){
+loginError.textContent='Password must be at least 6 characters.';
+loginError.style.display='block';
+return;
+}
+
+loginError.style.display='none';
+
+try{
+const data=await loginUser({email,password});
+saveUserSession(data.user);
+window.location.href='index.html';
+}catch(error){
+loginError.textContent=error.message || 'Login failed. Please try again.';
+loginError.style.display='block';
+}
+});
+</script>
+</body>
+</html>

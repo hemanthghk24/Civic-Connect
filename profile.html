@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect | Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#f1f5f9}
+nav{background:rgba(15,23,42,.95);backdrop-filter:blur(16px);padding:15px 8%;display:flex;justify-content:space-between;align-items:center;color:white;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo{font-size:28px;font-weight:bold}
+nav ul{display:flex;list-style:none;gap:25px;flex-wrap:wrap}
+nav ul a{color:white;text-decoration:none;font-weight:500}
+nav ul a:hover,nav ul a.active{color:#93c5fd}
+.banner{background:linear-gradient(rgba(15,23,42,.88),rgba(30,41,59,.85)),url("https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80");background-size:cover;background-position:center;padding:55px 8%;color:white;text-align:center}
+.banner h1{font-size:40px;margin-bottom:10px}
+.banner p{font-size:17px}
+.container{width:90%;max-width:1000px;margin:35px auto 50px}
+.profile-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:25px}
+.panel{background:white;border-radius:15px;padding:28px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.panel h2{color:#1e40af;margin-bottom:22px;font-size:24px}
+.profile-card{text-align:center;padding-bottom:10px}
+.avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px}
+.profile-card h3{font-size:26px;color:#1e293b;margin-bottom:6px}
+.profile-card p{color:#64748b}
+.details{display:grid;gap:16px}
+.detail-row{display:flex;align-items:center;gap:14px;padding:14px;background:#f8fafc;border-radius:10px}
+.detail-row i{color:#3b82f6;font-size:18px;width:22px}
+.detail-row div span{display:block;font-size:13px;color:#64748b;margin-bottom:4px}
+.detail-row div strong{color:#1e293b;font-size:15px}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th,.history-table td{padding:14px 12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:14px}
+.history-table th{color:#1e40af;background:#f8fafc}
+.history-table tr:hover{background:#eff6ff;cursor:pointer}
+.status-badge,.priority-badge{padding:5px 10px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block}
+.status-badge{background:#dbeafe;color:#1d4ed8}
+.priority-high{background:#fee2e2;color:#b91c1c}
+.priority-medium{background:#fef3c7;color:#b45309}
+.priority-low{background:#dbeafe;color:#1d4ed8}
+.empty-msg{color:#64748b;text-align:center;padding:30px 10px}
+.error-msg{color:#dc2626;text-align:center;margin-bottom:20px;display:none}
+footer{background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);color:white;text-align:center;padding:18px;border-top:1px solid rgba(255,255,255,.08)}
+@media(max-width:900px){.profile-grid{grid-template-columns:1fr}nav{flex-direction:column;gap:12px}.history-table{font-size:13px}}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo"><i class="fas fa-city"></i> CivicConnect</div>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="complaint.html">Complaint</a></li>
+<li><a href="track.html">Track</a></li>
+<li><a href="analytics_dashboard.html">Dashboard</a></li>
+<li><a href="profile.html" class="active">Profile</a></li>
+<li><a href="login.html" id="logoutLink">Logout</a></li>
+</ul>
+</nav>
+
+<div class="banner">
+<h1>My Profile</h1>
+<p>View your personal details and complaint history.</p>
+</div>
+
+<div class="container">
+<p class="error-msg" id="profileError"></p>
+
+<div class="profile-grid">
+<div class="panel">
+<h2>Personal Details</h2>
+<div class="profile-card">
+<div class="avatar"><i class="fas fa-user"></i></div>
+<h3 id="profileName">Loading...</h3>
+<p id="profileEmail">-</p>
+</div>
+<div class="details">
+<div class="detail-row">
+<i class="fas fa-phone"></i>
+<div><span>Mobile Number</span><strong id="profileMobile">-</strong></div>
+</div>
+<div class="detail-row">
+<i class="fas fa-envelope"></i>
+<div><span>Email Address</span><strong id="profileEmailDetail">-</strong></div>
+</div>
+<div class="detail-row">
+<i class="fas fa-calendar"></i>
+<div><span>Member Since</span><strong id="profileJoined">-</strong></div>
+</div>
+</div>
+</div>
+
+<div class="panel">
+<h2>Complaint History</h2>
+<div id="historyContent">
+<p class="empty-msg">Loading complaints...</p>
+</div>
+</div>
+</div>
+</div>
+
+<footer>© 2026 CivicConnect | Smart Public Complaint Management System</footer>
+
+<script src="api.js"></script>
+<script>
+const profileError=document.getElementById('profileError');
+const historyContent=document.getElementById('historyContent');
+
+function getPriorityClass(priority){
+if(priority==='High') return 'priority-high';
+if(priority==='Medium') return 'priority-medium';
+return 'priority-low';
+}
+
+async function loadProfile(){
+const user=getStoredUser();
+if(!user){
+window.location.href='login.html';
+return;
+}
+
+try{
+const profileData=await fetchUserProfile(user.id);
+const complaintsData=await fetchUserComplaints(user.id);
+const profile=profileData.user;
+
+document.getElementById('profileName').textContent=profile.full_name;
+document.getElementById('profileEmail').textContent=profile.email;
+document.getElementById('profileMobile').textContent=profile.mobile;
+document.getElementById('profileEmailDetail').textContent=profile.email;
+document.getElementById('profileJoined').textContent=profile.created_at;
+
+if(!complaintsData.complaints.length){
+historyContent.innerHTML='<p class="empty-msg">No complaints submitted yet. <a href="complaint.html">Report a complaint</a></p>';
+return;
+}
+
+historyContent.innerHTML=`
+<table class="history-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Type</th>
+<th>Area</th>
+<th>Status</th>
+<th>Priority</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+${complaintsData.complaints.map(item=>`
+<tr data-code="${item.complaint_code}">
+<td><strong>${item.complaint_code}</strong></td>
+<td>${item.complaint_type}</td>
+<td>${item.area}</td>
+<td><span class="status-badge">${item.status}</span></td>
+<td><span class="priority-badge ${getPriorityClass(item.ai_priority)}">${item.ai_priority}</span></td>
+<td>${item.created_at}</td>
+</tr>
+`).join('')}
+</tbody>
+</table>
+`;
+
+document.querySelectorAll('.history-table tbody tr').forEach(row=>{
+row.addEventListener('click',function(){
+const code=this.getAttribute('data-code');
+localStorage.setItem('lastComplaintCode',code);
+window.location.href='track.html';
+});
+});
+}catch(error){
+profileError.textContent=error.message||'Failed to load profile.';
+profileError.style.display='block';
+historyContent.innerHTML='<p class="empty-msg">Could not load complaint history.</p>';
+}
+}
+
+loadProfile();
+
+const logoutLink=document.getElementById('logoutLink');
+if(logoutLink){
+logoutLink.addEventListener('click',function(){
+clearUserSession();
+});
+}
+</script>
+</body>
+</html>

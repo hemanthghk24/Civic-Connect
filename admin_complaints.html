@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Complaints | CivicConnect</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+<div id="adminSidebar"></div>
+<div class="admin-main">
+<div class="admin-top">
+<div>
+<h2>Complaint Management</h2>
+<small>Monitor and update complaint progress</small>
+</div>
+</div>
+<div class="admin-content">
+<p class="error-msg" id="complaintsError"></p>
+<div class="admin-cards">
+<div class="admin-card"><h2 id="statTotal">0</h2><p>Total</p></div>
+<div class="admin-card"><h2 id="statPending">0</h2><p>Pending</p></div>
+<div class="admin-card"><h2 id="statHigh">0</h2><p>High Priority</p></div>
+<div class="admin-card"><h2 id="statResolved">0</h2><p>Resolved</p></div>
+</div>
+<div class="admin-panel table-panel">
+<table class="admin-table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Citizen</th>
+<th>Issue</th>
+<th>Area</th>
+<th>Priority</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="complaintsTableBody"><tr><td colspan="8">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+<script src="api.js"></script>
+<script src="admin.js"></script>
+<script>
+const STATUS_OPTIONS=["Submitted","Under Review","Assigned","In Progress","Completed"];
+
+setupAdminPage("complaints");
+
+async function loadComplaints(){
+const errorEl=document.getElementById("complaintsError");
+
+try{
+const data=await fetchAdminComplaints();
+const complaints=data.complaints;
+
+document.getElementById("statTotal").textContent=complaints.length;
+document.getElementById("statPending").textContent=complaints.filter(c=>c.status!=="Completed").length;
+document.getElementById("statHigh").textContent=complaints.filter(c=>c.ai_priority==="High").length;
+document.getElementById("statResolved").textContent=complaints.filter(c=>c.status==="Completed").length;
+
+const body=document.getElementById("complaintsTableBody");
+if(!complaints.length){
+body.innerHTML='<tr><td colspan="8">No complaints found.</td></tr>';
+return;
+}
+
+body.innerHTML=complaints.map(item=>`
+<tr>
+<td>${item.complaint_code}</td>
+<td>${item.citizen_name}</td>
+<td>${item.complaint_type}</td>
+<td>${item.area}</td>
+<td><span class="badge ${priorityClass(item.ai_priority)}">${item.ai_priority}</span></td>
+<td><span class="badge ${statusClass(item.status)}">${item.status}</span></td>
+<td class="date-cell">${item.created_at}</td>
+<td class="action-cell">
+<div class="action-group">
+<button class="btn btn-assign" data-code="${item.complaint_code}">Assign</button>
+<button class="btn btn-modify" data-code="${item.complaint_code}" data-status="${item.status}">Modify</button>
+</div>
+</td>
+</tr>`).join("");
+
+document.querySelectorAll(".btn-assign").forEach((button)=>{
+button.addEventListener("click",function(){
+assignComplaint(this.dataset.code);
+});
+});
+
+document.querySelectorAll(".btn-modify").forEach((button)=>{
+button.addEventListener("click",function(){
+modifyComplaint(this.dataset.code,this.dataset.status);
+});
+});
+}catch(error){
+errorEl.textContent=error.message||"Failed to load complaints.";
+errorEl.style.display="block";
+}
+}
+
+async function assignComplaint(code){
+const errorEl=document.getElementById("complaintsError");
+if(!confirm(`Assign complaint ${code} to the concerned department?`)){
+return;
+}
+
+try{
+await updateAdminComplaint(code,{status:"Assigned"});
+errorEl.style.display="none";
+await loadComplaints();
+}catch(error){
+errorEl.textContent=error.message||"Failed to assign complaint.";
+errorEl.style.display="block";
+}
+}
+
+async function modifyComplaint(code,currentStatus){
+const errorEl=document.getElementById("complaintsError");
+const optionsList=STATUS_OPTIONS.map((status,index)=>`${index+1}. ${status}`).join("\n");
+const choice=window.prompt(
+`Update status for ${code}:\n\n${optionsList}\n\nEnter number (1-${STATUS_OPTIONS.length}) or type status:`,
+STATUS_OPTIONS.indexOf(currentStatus)+1
+);
+
+if(choice===null){
+return;
+}
+
+let newStatus="";
+const trimmed=choice.trim();
+const optionNumber=Number(trimmed);
+
+if(Number.isInteger(optionNumber)&&optionNumber>=1&&optionNumber<=STATUS_OPTIONS.length){
+newStatus=STATUS_OPTIONS[optionNumber-1];
+}else{
+newStatus=STATUS_OPTIONS.find(
+(status)=>status.toLowerCase()===trimmed.toLowerCase()
+)||trimmed;
+}
+
+if(!STATUS_OPTIONS.includes(newStatus)){
+errorEl.textContent="Please choose a valid status.";
+errorEl.style.display="block";
+return;
+}
+
+try{
+await updateAdminComplaint(code,{status:newStatus});
+errorEl.style.display="none";
+await loadComplaints();
+}catch(error){
+errorEl.textContent=error.message||"Failed to modify complaint.";
+errorEl.style.display="block";
+}
+}
+
+loadComplaints();
+</script>
+</body>
+</html>

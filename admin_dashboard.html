@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | CivicConnect</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+<div id="adminSidebar"></div>
+<div class="admin-main">
+<div class="admin-top">
+<div>
+<h2>Dashboard</h2>
+<small>Welcome, <span id="adminWelcomeName">Administrator</span></small>
+</div>
+<div><i class="fas fa-user-shield"></i> Administrator</div>
+</div>
+<div class="admin-content">
+<p class="error-msg" id="dashboardError"></p>
+<div class="admin-cards">
+<div class="admin-card"><h2 id="totalComplaints">0</h2><p>Total Complaints</p></div>
+<div class="admin-card"><h2 id="resolvedComplaints">0</h2><p>Resolved</p></div>
+<div class="admin-card"><h2 id="pendingComplaints">0</h2><p>Pending</p></div>
+<div class="admin-card"><h2 id="highPriorityComplaints">0</h2><p>High Priority</p></div>
+</div>
+<div class="admin-row">
+<div class="admin-panel table-panel">
+<h3>Recent Complaints</h3>
+<table class="admin-table">
+<thead><tr><th>ID</th><th>Issue</th><th>Citizen</th><th>Status</th></tr></thead>
+<tbody id="recentComplaintsBody"><tr><td colspan="4">Loading...</td></tr></tbody>
+</table>
+</div>
+<div class="admin-panel">
+<h3>Quick Actions</h3>
+<div class="quick-grid">
+<div class="quick-item" onclick="location.href='admin_complaints.html'"><i class="fas fa-clipboard-list"></i><br>Complaints</div>
+<div class="quick-item" onclick="location.href='analytics_dashboard.html'"><i class="fas fa-chart-pie"></i><br>Analytics</div>
+<div class="quick-item" onclick="location.href='admin_users.html'"><i class="fas fa-users"></i><br>Users</div>
+<div class="quick-item" onclick="location.href='admin_profile.html'"><i class="fas fa-user-shield"></i><br>Profile</div>
+</div>
+</div>
+</div>
+<div class="admin-row">
+<div class="admin-panel">
+<h3>High Priority Alerts</h3>
+<ul id="alertsList"><li>Loading alerts...</li></ul>
+</div>
+<div class="admin-panel">
+<h3>System Overview</h3>
+<p>Today's Complaints: <b id="todayCount">0</b></p>
+<p>Total Users: <b id="totalUsers">0</b></p>
+<p>Pending Complaints: <b id="pendingOverview">0</b></p>
+<p>High Priority: <b id="highOverview">0</b></p>
+</div>
+</div>
+</div>
+</div>
+<script src="api.js"></script>
+<script src="admin.js"></script>
+<script>
+setupAdminPage('dashboard');
+
+async function loadDashboard(){
+const errorEl=document.getElementById('dashboardError');
+try{
+const data=await fetchAdminDashboard();
+const summary=data.summary;
+document.getElementById('totalComplaints').textContent=summary.total;
+document.getElementById('resolvedComplaints').textContent=summary.resolved;
+document.getElementById('pendingComplaints').textContent=summary.pending;
+document.getElementById('highPriorityComplaints').textContent=summary.high_priority;
+document.getElementById('todayCount').textContent=summary.today_count;
+document.getElementById('totalUsers').textContent=summary.total_users;
+document.getElementById('pendingOverview').textContent=summary.pending;
+document.getElementById('highOverview').textContent=summary.high_priority;
+
+const recentBody=document.getElementById('recentComplaintsBody');
+if(!data.recent_complaints.length){
+recentBody.innerHTML='<tr><td colspan="4">No complaints yet.</td></tr>';
+}else{
+recentBody.innerHTML=data.recent_complaints.map(item=>`
+<tr>
+<td>${item.complaint_code}</td>
+<td>${item.complaint_type}</td>
+<td>${item.citizen_name}</td>
+<td><span class="badge ${priorityClass(item.ai_priority)}">${item.status}</span></td>
+</tr>`).join('');
+}
+
+const alertsList=document.getElementById('alertsList');
+if(!data.high_priority_alerts.length){
+alertsList.innerHTML='<li>No high priority alerts right now.</li>';
+}else{
+alertsList.innerHTML=data.high_priority_alerts.map(item=>`
+<li>🔴 ${item.complaint_type} - ${item.area} (${item.complaint_code})</li>`).join('');
+}
+}catch(error){
+errorEl.textContent=error.message||'Failed to load dashboard.';
+errorEl.style.display='block';
+}
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

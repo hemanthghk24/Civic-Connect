@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect | Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#0f172a,#1e293b,#0f172a);position:relative;overflow:hidden}
+body::before,body::after{content:"";position:absolute;border-radius:50%;filter:blur(80px);opacity:.45}
+body::before{width:400px;height:400px;background:#6366f1;top:-120px;left:-120px}
+body::after{width:320px;height:320px;background:#3b82f6;bottom:-80px;right:-80px}
+.container{width:900px;display:flex;background:rgba(255,255,255,.1);backdrop-filter:blur(16px);border-radius:20px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);position:relative;z-index:1}
+.left{width:45%;padding:50px;color:#fff;background:rgba(255,255,255,.05);display:flex;flex-direction:column;justify-content:center}
+.left i{font-size:70px;margin-bottom:20px;color:#93c5fd}
+.left h1{font-size:34px;margin-bottom:15px}
+.left p{line-height:1.8;font-size:15px}
+.right{width:55%;background:#fff;padding:45px}
+.right h2{text-align:center;color:#1e40af;margin-bottom:30px}
+.input-box{position:relative;margin-bottom:22px}
+.input-box i{position:absolute;top:15px;left:15px;color:#3b82f6}
+.input-box input{width:100%;padding:14px 14px 14px 45px;border:1px solid #ccc;border-radius:8px;outline:none}
+.input-box input:focus{border-color:#3b82f6;box-shadow:0 0 10px rgba(59,130,246,.2)}
+button{width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
+button:hover{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+.bottom{text-align:center;margin-top:20px}
+.bottom a{color:#2563eb;text-decoration:none;font-weight:600}
+.error-msg{color:#dc2626;font-size:14px;margin-top:12px;text-align:center;display:none}
+.hint{font-size:13px;color:#64748b;text-align:center;margin-top:12px}
+@media(max-width:850px){.container{width:95%;flex-direction:column}.left{display:none}.right{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="left">
+<i class="fas fa-user-shield"></i>
+<h1>Administrator Portal</h1>
+<p>Access the CivicConnect Administration Panel to monitor complaints, view analytics, manage users, and oversee the complaint resolution process.</p>
+</div>
+<div class="right">
+<h2>Admin Login</h2>
+<form id="adminLoginForm">
+<div class="input-box">
+<i class="fas fa-id-badge"></i>
+<input type="text" id="adminId" placeholder="Admin ID">
+</div>
+<div class="input-box">
+<i class="fas fa-lock"></i>
+<input type="password" id="adminPassword" placeholder="Password">
+</div>
+<button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+<p class="error-msg" id="adminLoginError"></p>
+<p class="hint">Default: ADMIN001 / admin123</p>
+<div class="bottom">
+<a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</div>
+</form>
+</div>
+</div>
+<script src="api.js"></script>
+<script src="admin.js"></script>
+<script>
+const adminLoginForm=document.getElementById('adminLoginForm');
+const adminIdInput=document.getElementById('adminId');
+const adminPasswordInput=document.getElementById('adminPassword');
+const adminLoginError=document.getElementById('adminLoginError');
+
+adminLoginForm.addEventListener('submit',async function(e){
+e.preventDefault();
+const admin_id=adminIdInput.value.trim();
+const password=adminPasswordInput.value.trim();
+
+if(!admin_id||!password){
+adminLoginError.textContent='Please enter Admin ID and password.';
+adminLoginError.style.display='block';
+return;
+}
+
+try{
+const data=await adminLogin({admin_id,password});
+saveAdminSession(data.admin);
+window.location.href='admin_dashboard.html';
+}catch(error){
+adminLoginError.textContent=error.message||'Admin login failed.';
+adminLoginError.style.display='block';
+}
+});
+</script>
+</body>
+</html>

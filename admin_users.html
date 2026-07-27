@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Users | CivicConnect</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+<div id="adminSidebar"></div>
+<div class="admin-main">
+<div class="admin-top">
+<div>
+<h2>Registered Users</h2>
+<small>Manage and monitor registered citizens</small>
+</div>
+</div>
+<div class="admin-content">
+<p class="error-msg" id="usersError"></p>
+<div class="admin-cards">
+<div class="admin-card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
+<div class="admin-card"><h2 id="activeUsers">0</h2><p>Active Users</p></div>
+<div class="admin-card"><h2 id="registeredOnly">0</h2><p>Registered Only</p></div>
+<div class="admin-card"><h2 id="totalComplaints">0</h2><p>Total Complaints</p></div>
+</div>
+<div class="admin-panel table-panel">
+<h3>User List</h3>
+<table class="admin-table">
+<thead>
+<tr><th>Name</th><th>Email</th><th>Phone</th><th>Complaints</th><th>Status</th><th>Joined</th></tr>
+</thead>
+<tbody id="usersTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+<script src="api.js"></script>
+<script src="admin.js"></script>
+<script>
+setupAdminPage('users');
+
+async function loadUsers(){
+const errorEl=document.getElementById('usersError');
+try{
+const data=await fetchAdminUsers();
+document.getElementById('totalUsers').textContent=data.summary.total_users;
+document.getElementById('activeUsers').textContent=data.summary.active_users;
+document.getElementById('registeredOnly').textContent=data.summary.total_users-data.summary.active_users;
+document.getElementById('totalComplaints').textContent=data.summary.total_complaints;
+
+const body=document.getElementById('usersTableBody');
+if(!data.users.length){
+body.innerHTML='<tr><td colspan="6">No registered users yet.</td></tr>';
+return;
+}
+
+body.innerHTML=data.users.map(user=>`
+<tr>
+<td>${user.full_name}</td>
+<td>${user.email}</td>
+<td>${user.mobile}</td>
+<td>${user.complaint_count}</td>
+<td><span class="badge ${user.complaint_count>0?'resolved':'pending'}">${user.status}</span></td>
+<td>${user.created_at}</td>
+</tr>`).join('');
+}catch(error){
+errorEl.textContent=error.message||'Failed to load users.';
+errorEl.style.display='block';
+}
+}
+
+loadUsers();
+</script>
+</body>
+</html>

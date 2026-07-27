@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect | Track Complaint</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f1f5f9;
+}
+
+/* Navbar */
+
+nav{
+background:rgba(15,23,42,.95);
+backdrop-filter:blur(16px);
+padding:15px 8%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+}
+
+nav ul{
+display:flex;
+list-style:none;
+gap:25px;
+}
+
+nav ul li a{
+text-decoration:none;
+color:white;
+font-weight:500;
+}
+
+nav ul li a:hover{
+color:#93c5fd;
+}
+
+/* Banner */
+
+.banner{
+height:250px;
+background:linear-gradient(rgba(15,23,42,.88),rgba(30,41,59,.85)),
+url("https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80");
+background-size:cover;
+background-position:center;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+color:white;
+}
+
+.banner h1{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.banner p{
+font-size:18px;
+}
+
+/* Search */
+
+.container{
+width:90%;
+max-width:1000px;
+margin:40px auto;
+}
+
+.search-box{
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.1);
+text-align:center;
+}
+
+.search-box input{
+width:60%;
+padding:14px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:16px;
+outline:none;
+}
+
+.search-box button{
+padding:14px 25px;
+background:linear-gradient(135deg,#3b82f6,#2563eb);
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+margin-left:10px;
+font-size:16px;
+transition:.3s;
+}
+
+.search-box button:hover{
+background:linear-gradient(135deg,#60a5fa,#3b82f6);
+}
+
+/* Complaint Card */
+
+.card{
+margin-top:35px;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.1);
+}
+
+.card h2{
+color:#1e40af;
+margin-bottom:20px;
+}
+
+.details{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+margin-bottom:30px;
+}
+
+.info{
+background:#F4F7F8;
+padding:15px;
+border-radius:10px;
+}
+
+.info h4{
+color:#2563eb;
+margin-bottom:8px;
+}
+
+/* Timeline */
+
+.timeline{
+position:relative;
+margin-top:20px;
+padding-left:30px;
+}
+
+.timeline::before{
+content:"";
+position:absolute;
+left:11px;
+top:0;
+height:100%;
+width:4px;
+background:#3b82f6;
+}
+
+.step{
+position:relative;
+margin-bottom:35px;
+padding-left:30px;
+}
+
+.step i{
+position:absolute;
+left:-2px;
+top:0;
+background:#3b82f6;
+color:white;
+width:28px;
+height:28px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.step h3{
+color:#1e40af;
+margin-bottom:5px;
+}
+
+.completed{
+opacity:1;
+}
+
+.pending{
+opacity:.45;
+}
+
+/* Priority */
+
+.priority{
+margin-top:20px;
+padding:15px;
+background:#FFF3CD;
+border-left:5px solid orange;
+border-radius:8px;
+}
+
+.priority h3{
+color:#d97706;
+}
+
+.error-msg{
+color:#dc2626;
+font-size:14px;
+margin-top:14px;
+text-align:center;
+display:none;
+}
+
+/* Footer */
+
+footer{
+margin-top:40px;
+background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);
+color:white;
+text-align:center;
+padding:18px;
+border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+.details{
+grid-template-columns:1fr;
+}
+
+.search-box input{
+width:100%;
+margin-bottom:15px;
+}
+
+.search-box button{
+width:100%;
+margin-left:0;
+}
+
+nav{
+flex-direction:column;
+gap:12px;
+}
+
+nav ul{
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.banner h1{
+font-size:30px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">
+<i class="fas fa-city"></i> CivicConnect
+</div>
+
+<ul>
+
+<li><a href="index.html">Home</a></li>
+<li><a href="complaint.html">Complaint</a></li>
+<li><a href="track.html">Track</a></li>
+<li><a href="analytics_dashboard.html">Dashboard</a></li>
+<li><a href="profile.html">Profile</a></li>
+<li><a href="login.html" id="logoutLink">Logout</a></li>
+
+</ul>
+
+</nav>
+
+<div class="banner">
+
+<h1>Track Your Complaint</h1>
+
+<p>Check the latest status of your submitted complaint.</p>
+
+</div>
+
+<div class="container">
+
+<div class="search-box">
+
+<h2>Enter Complaint ID</h2>
+<br>
+
+<input type="text" id="complaintIdInput" placeholder="Example : CIV2026001">
+
+<button type="button" id="trackBtn">
+<i class="fas fa-search"></i>
+ Track
+</button>
+<p class="error-msg" id="trackError"></p>
+
+</div>
+
+<div class="card" id="complaintCard">
+
+<h2>Complaint Details</h2>
+
+<div class="details">
+
+<div class="info">
+<h4>Complaint ID</h4>
+<p id="detailId">-</p>
+</div>
+
+<div class="info">
+<h4>Complaint Type</h4>
+<p id="detailType">-</p>
+</div>
+
+<div class="info">
+<h4>Area</h4>
+<p id="detailArea">-</p>
+</div>
+
+<div class="info">
+<h4>Date Submitted</h4>
+<p id="detailDate">-</p>
+</div>
+
+</div>
+
+<h2>Status Timeline</h2>
+
+<div class="timeline">
+
+<div class="step completed">
+<i class="fas fa-check"></i>
+<h3>Complaint Submitted</h3>
+<p>Your complaint has been successfully registered.</p>
+</div>
+
+<div class="step completed">
+<i class="fas fa-check"></i>
+<h3>Under Review</h3>
+<p>Complaint reviewed by the authority.</p>
+</div>
+
+<div class="step completed">
+<i class="fas fa-check"></i>
+<h3>Assigned to Department</h3>
+<p>Concerned department has accepted the complaint.</p>
+</div>
+
+<div class="step pending">
+<i class="fas fa-tools"></i>
+<h3>Issue Resolution</h3>
+<p>Repair work is currently in progress.</p>
+</div>
+
+<div class="step pending">
+<i class="fas fa-flag-checkered"></i>
+<h3>Completed</h3>
+<p>Your complaint will be marked resolved after verification.</p>
+</div>
+
+</div>
+
+<div class="priority" id="priorityBox">
+
+<h3 id="priorityTitle">🤖 AI Priority Prediction : -</h3>
+
+<p id="priorityText">
+Based on complaint type, severity and affected population,
+this issue will be marked by the system after submission.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+
+© 2026 CivicConnect | Smart Public Complaint Management System
+
+</footer>
+
+<script src="api.js"></script>
+<script>
+const complaintIdInput=document.getElementById('complaintIdInput');
+const trackBtn=document.getElementById('trackBtn');
+const trackError=document.getElementById('trackError');
+const complaintCard=document.getElementById('complaintCard');
+const detailId=document.getElementById('detailId');
+const detailType=document.getElementById('detailType');
+const detailArea=document.getElementById('detailArea');
+const detailDate=document.getElementById('detailDate');
+const priorityTitle=document.getElementById('priorityTitle');
+const priorityText=document.getElementById('priorityText');
+
+function updateTimeline(status){
+const steps=document.querySelectorAll('.timeline .step');
+const statusOrder=['Submitted','Under Review','Assigned','In Progress','Completed'];
+const currentIndex=statusOrder.indexOf(status);
+
+steps.forEach((step,index)=>{
+step.classList.remove('completed','pending');
+if(index<=currentIndex){
+step.classList.add('completed');
+}else{
+step.classList.add('pending');
+}
+});
+}
+
+async function loadComplaint(code){
+const complaintCode=code.trim().toUpperCase();
+if(!complaintCode){
+trackError.textContent='Please enter a complaint ID.';
+trackError.style.display='block';
+return;
+}
+
+trackError.style.display='none';
+
+try{
+const data=await fetchComplaint(complaintCode);
+const complaint=data.complaint;
+
+detailId.textContent=complaint.complaint_code;
+detailType.textContent=complaint.complaint_type;
+detailArea.textContent=complaint.area;
+detailDate.textContent=complaint.created_at;
+priorityTitle.textContent=`🤖 AI Priority Prediction : ${complaint.ai_priority.toUpperCase()}`;
+priorityText.innerHTML=`Based on complaint type, severity and affected population, this issue has been marked as <b>${complaint.ai_priority} Priority</b>.`;
+updateTimeline(complaint.status);
+complaintCard.style.display='block';
+}catch(error){
+complaintCard.style.display='none';
+trackError.textContent=error.message || 'Complaint not found.';
+trackError.style.display='block';
+}
+}
+
+trackBtn.addEventListener('click',function(){
+loadComplaint(complaintIdInput.value);
+});
+
+const savedCode=localStorage.getItem('lastComplaintCode');
+if(savedCode){
+complaintIdInput.value=savedCode;
+loadComplaint(savedCode);
+}else{
+complaintCard.style.display='none';
+}
+
+const logoutLink=document.getElementById('logoutLink');
+if(logoutLink){
+logoutLink.addEventListener('click',function(){
+clearUserSession();
+});
+}
+</script>
+</body>
+</html>

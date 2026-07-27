@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#f1f5f9;color:#334155}
+body.citizen-analytics nav{background:rgba(15,23,42,.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.1)}
+body.admin-analytics-mode nav{display:none}
+nav{background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);color:#fff;padding:18px 35px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.citizen-banner{background:linear-gradient(rgba(15,23,42,.88),rgba(30,41,59,.85)),url("https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80");background-size:cover;background-position:center;padding:55px 8%;color:#fff;text-align:center}
+.citizen-banner h1{font-size:40px;margin-bottom:10px}
+.citizen-banner p{font-size:17px}
+.logo{font-size:28px;font-weight:700}
+nav ul{display:flex;gap:20px;list-style:none}
+nav ul a{color:#fff;text-decoration:none;font-weight:500}
+nav ul a:hover{color:#93c5fd}
+.container{padding:30px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:25px}
+.card{background:#fff;border-radius:16px;padding:22px;box-shadow:0 8px 18px rgba(0,0,0,.08);border-left:6px solid #2563eb}
+.card h2{color:#1e40af;font-size:34px}
+.card small{color:#2563eb;font-weight:600}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.panel{background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
+.panel h3{margin-bottom:15px;color:#1e40af}
+.chart-wrap{height:260px;position:relative}
+.bottom{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.insights li{margin:10px 0;line-height:1.6}
+.metrics{display:grid;gap:15px}
+.metric{background:#fff;padding:18px;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
+.metric h4{color:#64748b}.metric h2{color:#1e40af}
+.error-msg{color:#dc2626;text-align:center;margin-bottom:20px;display:none}
+@media(max-width:900px){.row,.row2,.bottom{grid-template-columns:1fr}nav{flex-direction:column;gap:12px}nav ul{flex-wrap:wrap;justify-content:center}}
+</style>
+</head>
+<body>
+<nav id="citizenNav">
+<div class="logo"><i class="fas fa-city"></i> CivicConnect</div>
+<ul id="citizenNavLinks">
+<li><a href="index.html">Home</a></li>
+<li><a href="complaint.html">Complaint</a></li>
+<li><a href="track.html">Track</a></li>
+<li><a href="analytics_dashboard.html">Dashboard</a></li>
+<li><a href="profile.html">Profile</a></li>
+<li><a href="login.html" id="logoutLink">Logout</a></li>
+</ul>
+</nav>
+
+<div class="citizen-banner" id="citizenBanner">
+<h1>Public Analytics Dashboard</h1>
+<p>Explore complaint trends, categories, and AI insights across the city.</p>
+</div>
+
+<div class="container" id="analyticsContainer">
+<p class="error-msg" id="dashboardError"></p>
+
+<div class="cards">
+<div class="card"><h2 id="totalComplaints">0</h2><p>Total Complaints</p><small id="monthChange">Loading...</small></div>
+<div class="card"><h2 id="resolvedComplaints">0</h2><p>Resolved</p><small id="resolutionRate">0% Success</small></div>
+<div class="card"><h2 id="pendingComplaints">0</h2><p>Pending</p><small id="pendingRate">0% Pending</small></div>
+<div class="card"><h2 id="highPriorityComplaints">0</h2><p>High Priority</p><small id="highPriorityRate">0% High Priority</small></div>
+</div>
+
+<div class="row">
+<div class="panel"><h3>Complaint Trend (Last 7 Days)</h3><div class="chart-wrap"><canvas id="trend"></canvas></div></div>
+<div class="panel"><h3>Complaint Categories</h3><div class="chart-wrap"><canvas id="category"></canvas></div></div>
+</div>
+
+<div class="row2">
+<div class="panel"><h3>Area-wise Complaints</h3><div class="chart-wrap"><canvas id="ward"></canvas></div></div>
+<div class="panel"><h3>Monthly Resolution Rate</h3><div class="chart-wrap"><canvas id="resolution"></canvas></div></div>
+</div>
+
+<div class="row2">
+<div class="panel"><h3>Department Performance</h3><div class="chart-wrap"><canvas id="dept"></canvas></div></div>
+<div class="panel"><h3>Priority Distribution</h3><div class="chart-wrap"><canvas id="priority"></canvas></div></div>
+</div>
+
+<div class="bottom">
+<div class="panel">
+<h3>🤖 AI Insights</h3>
+<ul class="insights" id="insightsList">
+<li>Loading insights...</li>
+</ul>
+</div>
+
+<div class="metrics">
+<div class="metric"><h4>Resolution Rate</h4><h2 id="metricResolution">0%</h2></div>
+<div class="metric"><h4>Pending Rate</h4><h2 id="metricPending">0%</h2></div>
+<div class="metric"><h4>High Priority Rate</h4><h2 id="metricHighPriority">0%</h2></div>
+</div>
+</div>
+
+</div>
+
+<script src="api.js"></script>
+<script src="admin.js"></script>
+<script>
+const isCitizenLoggedIn=localStorage.getItem('civicconnectLoggedIn')==='true';
+const isAdminView=setupAdminAnalyticsLayout();
+
+function setupCitizenAnalyticsView(){
+document.body.classList.add('citizen-analytics');
+document.body.classList.remove('admin-analytics-mode');
+
+const adminSidebar=document.getElementById('adminSidebar');
+if(adminSidebar){
+adminSidebar.remove();
+}
+
+const citizenNav=document.getElementById('citizenNav');
+const citizenBanner=document.getElementById('citizenBanner');
+const navLinks=document.getElementById('citizenNavLinks');
+
+if(citizenNav){
+citizenNav.style.display='flex';
+}
+
+if(citizenBanner){
+citizenBanner.style.display='block';
+}
+
+if(navLinks){
+if(isCitizenLoggedIn){
+navLinks.innerHTML=`
+<li><a href="index.html">Home</a></li>
+<li><a href="complaint.html">Complaint</a></li>
+<li><a href="track.html">Track</a></li>
+<li><a href="analytics_dashboard.html">Dashboard</a></li>
+<li><a href="profile.html">Profile</a></li>
+<li><a href="login.html" id="logoutLink">Logout</a></li>`;
+}else{
+navLinks.innerHTML=`
+<li><a href="index.html">Home</a></li>
+<li><a href="login.html">Citizen Login</a></li>
+<li><a href="admin_login.html">Admin Login</a></li>`;
+}
+}
+
+const container=document.getElementById('analyticsContainer');
+if(container){
+container.style.marginLeft='0';
+container.style.width='100%';
+}
+}
+
+if(isAdminView){
+const adminStyles=document.createElement('link');
+adminStyles.rel='stylesheet';
+adminStyles.href='admin.css';
+document.head.appendChild(adminStyles);
+
+const citizenNav=document.getElementById('citizenNav');
+const citizenBanner=document.getElementById('citizenBanner');
+if(citizenNav){
+citizenNav.style.display='none';
+}
+if(citizenBanner){
+citizenBanner.style.display='none';
+}
+}else{
+setupCitizenAnalyticsView();
+}
+
+const commonChartOptions={responsive:true,maintainAspectRatio:false};
+const bluePalette=['#1e40af','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe'];
+const priorityColors={'High':'#ef4444','Medium':'#f59e0b','Low':'#3b82f6'};
+
+function getChartLabels(items,fallback){
+return items.length?items.map(item=>item.label):[fallback];
+}
+
+function getChartValues(items){
+return items.length?items.map(item=>item.count):[0];
+}
+
+function createBarChart(canvasId,labels,values,horizontal=false){
+const ctx=document.getElementById(canvasId);
+return new Chart(ctx,{
+type:'bar',
+data:{
+labels,
+datasets:[{
+data:values,
+backgroundColor:horizontal?bluePalette.slice(0,labels.length):'#2563eb'
+}]
+},
+options:{
+...commonChartOptions,
+indexAxis:horizontal?'y':'x',
+plugins:{legend:{display:false}}
+}
+});
+}
+
+async function loadDashboard(){
+const dashboardError=document.getElementById('dashboardError');
+
+try{
+const data=await fetchAnalytics();
+const summary=data.summary;
+
+document.getElementById('totalComplaints').textContent=summary.total;
+document.getElementById('resolvedComplaints').textContent=summary.resolved;
+document.getElementById('pendingComplaints').textContent=summary.pending;
+document.getElementById('highPriorityComplaints').textContent=summary.high_priority;
+
+const monthChange=summary.month_change;
+document.getElementById('monthChange').textContent=`${monthChange>=0?'▲':'▼'} ${Math.abs(monthChange)}% this month`;
+document.getElementById('resolutionRate').textContent=`${summary.resolution_rate}% Success`;
+document.getElementById('pendingRate').textContent=`${data.metrics.pending_rate} Pending`;
+document.getElementById('highPriorityRate').textContent=`${data.metrics.high_priority_rate} High Priority`;
+
+document.getElementById('metricResolution').textContent=data.metrics.resolution_rate;
+document.getElementById('metricPending').textContent=data.metrics.pending_rate;
+document.getElementById('metricHighPriority').textContent=data.metrics.high_priority_rate;
+
+const insightsList=document.getElementById('insightsList');
+insightsList.innerHTML=data.insights.map(item=>`<li>${item}</li>`).join('');
+
+new Chart(trend,{
+type:'line',
+data:{
+labels:data.trend.labels,
+datasets:[{
+data:data.trend.values,
+borderColor:'#2563eb',
+backgroundColor:'rgba(37,99,235,.15)',
+fill:true,
+tension:.4
+}]
+},
+options:{...commonChartOptions,plugins:{legend:{display:false}}}
+});
+
+new Chart(category,{
+type:'doughnut',
+data:{
+labels:getChartLabels(data.categories,'No Data'),
+datasets:[{
+data:getChartValues(data.categories),
+backgroundColor:bluePalette
+}]
+},
+options:{...commonChartOptions,cutout:'70%'}
+});
+
+createBarChart('ward',getChartLabels(data.areas,'No Data'),getChartValues(data.areas));
+
+const monthlyLabels=data.monthly_resolution.labels.length?data.monthly_resolution.labels:['No Data'];
+const monthlyValues=data.monthly_resolution.values.length?data.monthly_resolution.values:[0];
+new Chart(resolution,{
+type:'bar',
+data:{
+labels:monthlyLabels,
+datasets:[{
+data:monthlyValues,
+backgroundColor:bluePalette.slice(0,monthlyLabels.length)
+}]
+},
+options:{...commonChartOptions,plugins:{legend:{display:false}}}
+});
+
+createBarChart(
+'dept',
+getChartLabels(data.departments,'No Data'),
+getChartValues(data.departments),
+true
+);
+
+const priorityLabels=getChartLabels(data.priorities,'No Data');
+const priorityValues=getChartValues(data.priorities);
+new Chart(priority,{
+type:'pie',
+data:{
+labels:priorityLabels,
+datasets:[{
+data:priorityValues,
+backgroundColor:priorityLabels.map(label=>priorityColors[label]||'#94a3b8')
+}]
+},
+options:{...commonChartOptions}
+});
+}catch(error){
+dashboardError.textContent=error.message||'Failed to load analytics data.';
+dashboardError.style.display='block';
+}
+}
+
+loadDashboard();
+
+if(!isAdminView){
+document.addEventListener('click',function(event){
+const logoutLink=event.target.closest('#logoutLink');
+if(logoutLink){
+clearUserSession();
+}
+});
+}
+</script>
+</body>
+</html>

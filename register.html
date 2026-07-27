@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicConnect - Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);
+overflow:hidden;
+position:relative;
+}
+body::before,body::after{
+content:"";
+position:absolute;
+border-radius:50%;
+filter:blur(80px);
+opacity:.5;
+}
+body::before{width:400px;height:400px;top:-100px;left:-80px;background:#6366f1;}
+body::after{width:320px;height:320px;bottom:-80px;right:-60px;background:#3b82f6;}
+.container{
+width:900px;
+display:grid;
+grid-template-columns:1fr 1fr;
+background:rgba(255,255,255,.1);
+backdrop-filter:blur(16px);
+border-radius:25px;
+overflow:hidden;
+box-shadow:0 20px 50px rgba(0,0,0,.4);
+border:1px solid rgba(255,255,255,.1);
+position:relative;
+z-index:1;
+}
+.left{
+padding:50px;
+color:#fff;
+display:flex;
+flex-direction:column;
+justify-content:center;
+background:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.15));
+}
+.left h1{font-size:42px;margin-bottom:15px}
+.left p{line-height:1.8}
+.left i{font-size:70px;margin-bottom:20px;color:#93c5fd}
+.right{
+background:#fff;
+padding:40px;
+}
+.right h2{
+text-align:center;
+color:#1e40af;
+margin-bottom:25px;
+}
+.input-box{
+position:relative;
+margin-bottom:18px;
+}
+.input-box i{
+position:absolute;
+left:15px;
+top:15px;
+color:#3b82f6;
+}
+.input-box input{
+width:100%;
+padding:14px 14px 14px 45px;
+border:1px solid #ccc;
+border-radius:10px;
+outline:none;
+transition:.3s;
+}
+.input-box input:focus{
+border-color:#3b82f6;
+box-shadow:0 0 8px rgba(59,130,246,.25);
+}
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(135deg,#3b82f6,#2563eb);
+color:#fff;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
+}
+button:hover{
+background:linear-gradient(135deg,#60a5fa,#3b82f6);
+transform:translateY(-2px);
+}
+.login{
+margin-top:20px;
+text-align:center;
+}
+.login a{
+text-decoration:none;
+color:#2563eb;
+font-weight:600;
+}
+.error-msg{
+color:#dc2626;
+font-size:14px;
+margin-top:12px;
+text-align:center;
+display:none;
+}
+@media(max-width:850px){
+.container{grid-template-columns:1fr;width:95%}
+.left{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="left">
+<i class="fas fa-city"></i>
+<h1>Join CivicConnect</h1>
+<p>Create your account to report civic issues, track complaint status, and help build a cleaner, safer community. Every complaint helps improve public services.</p>
+</div>
+
+<div class="right">
+<h2>Create Account</h2>
+
+<form id="registerForm">
+
+<div class="input-box">
+<i class="fas fa-user"></i>
+<input type="text" id="fullName" placeholder="Full Name">
+</div>
+
+<div class="input-box">
+<i class="fas fa-envelope"></i>
+<input type="email" id="email" placeholder="Email Address">
+</div>
+
+<div class="input-box">
+<i class="fas fa-phone"></i>
+<input type="tel" id="mobile" placeholder="Mobile Number">
+</div>
+
+<div class="input-box">
+<i class="fas fa-lock"></i>
+<input type="password" id="password" placeholder="Password">
+</div>
+
+<div class="input-box">
+<i class="fas fa-lock"></i>
+<input type="password" id="confirmPassword" placeholder="Confirm Password">
+</div>
+
+<button type="submit">Register</button>
+<p class="error-msg" id="registerError"></p>
+
+<div class="login">
+Already have an account?
+<a href="login.html">Login</a>
+<br><br>
+<a href="index.html">Back to Home</a>
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script src="api.js"></script>
+<script>
+const registerForm=document.getElementById('registerForm');
+const nameInput=document.getElementById('fullName');
+const emailInput=document.getElementById('email');
+const mobileInput=document.getElementById('mobile');
+const passwordInput=document.getElementById('password');
+const confirmPasswordInput=document.getElementById('confirmPassword');
+const registerError=document.getElementById('registerError');
+
+registerForm.addEventListener('submit',async function(e){
+e.preventDefault();
+
+const fullName=nameInput.value.trim();
+const email=emailInput.value.trim();
+const mobile=mobileInput.value.trim();
+const password=passwordInput.value.trim();
+const confirmPassword=confirmPasswordInput.value.trim();
+const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const mobilePattern=/^\d{10}$/;
+
+if(!fullName || !email || !mobile || !password || !confirmPassword){
+registerError.textContent='Please fill in all fields.';
+registerError.style.display='block';
+return;
+}
+
+if(!emailPattern.test(email)){
+registerError.textContent='Please enter a valid email address.';
+registerError.style.display='block';
+return;
+}
+
+if(!mobilePattern.test(mobile)){
+registerError.textContent='Mobile number must be exactly 10 digits.';
+registerError.style.display='block';
+return;
+}
+
+if(password.length<6){
+registerError.textContent='Password must be at least 6 characters.';
+registerError.style.display='block';
+return;
+}
+
+if(password!==confirmPassword){
+registerError.textContent='Password and confirm password do not match.';
+registerError.style.display='block';
+return;
+}
+
+registerError.style.display='none';
+
+try{
+await registerUser({
+full_name:fullName,
+email,
+mobile,
+password
+});
+window.location.href='login.html';
+}catch(error){
+registerError.textContent=error.message || 'Registration failed. Please try again.';
+registerError.style.display='block';
+}
+});
+</script>
+</body>
+</html>
